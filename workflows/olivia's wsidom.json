@@ -1,0 +1,336 @@
+{
+  "name": "olivia.11",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "dd9fc333-d37f-4f5a-854f-badd3a968923",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/botYour_Bot_Token/getUpdates?offset",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "0c0f6197-33b8-4c76-8c86-346f21f613f5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/botYour_Bot_Token/getUpdates?offset={{ $('HTTP Request').item.json.result[0].update_id +1 }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        656,
+        176
+      ],
+      "id": "513e09ea-2992-425a-bd3b-54b2388dbf27",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('HTTP Request').first().json.result.at(-1).message.chat.id }}",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1424,
+        -32
+      ],
+      "id": "13b2adfe-5c4f-4188-b7db-c4bd3fdb8b9b",
+      "name": "Send a text message",
+      "webhookId": "2c65e43d-9812-4cce-aaae-dc22ebe26533",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 601,
+      "credentials": {
+        "telegramApi": {
+          "id": "S4IdyO1XdonSvwRX",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a philosophical provocateur. Today's thinker: {{ ['Nietzsche','Camus','Voltaire','Socrates','Sartre','Kierkegaard','Simone de Beauvoir','Schopenhauer','Marcus Aurelius','Hannah Arendt','Epictetus','Hume'][Math.floor(Math.random()*12)] }}. Today's theme: {{ ['freedom vs security','truth vs comfort','justice vs loyalty','meaning vs honesty','authenticity vs belonging','mortality','self-deception','ambition vs contentment','duty vs desire','forgiveness'][Math.floor(Math.random()*10)] }}.\n\nWrite ONE original dilemma addressed to the reader (\"you\").\n\nRules:\n- Open with a concrete, specific situation with real stakes. No lecture, no preamble.\n- Both choices must be defensible. Each should threaten a different comfortable belief the reader holds.\n- Ground it in the thinker's actual idea, but don't summarize their philosophy.\n- Never use textbook examples: no trolley problem, organ transplant, Ship of Theseus, experience machine, or lifeboat.\n- Never give an answer, moralize, or say there's no right answer.\n- 90 to 120 words. Plain text only: no markdown, no emojis, no bullet points.\n- Second-to-last line: one forced-choice question.\n- Last line, after a blank line: \"Thinker: <name> | Bias tested: <the specific cognitive bias>\""
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        -32
+      ],
+      "id": "044f36d5-666d-485c-8e11-e912a6ada5c6",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "waitBetweenTries": 500,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KsU0eoI1d5E4m2qR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4dac1800-43f8-4d6e-83fe-963692e94ab7",
+              "leftValue": "={{ $('HTTP Request').first().json.result.at(-1)?.message?.text }}",
+              "rightValue": "wisdom",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        192
+      ],
+      "id": "dc71ad05-e32c-46b1-8c14-f88a168fda2c",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4dac1800-43f8-4d6e-83fe-963692e94ab7",
+              "leftValue": "={{ $json.result.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "a3f79885-bfd9-457d-8494-b2c6006fd7f6",
+      "name": "new message"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('HTTP Request').first().json.result.at(-1).message.chat.id }}",
+        "text": "Say \" State your wisdom \"  to receive a dilemma",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        224
+      ],
+      "id": "b8a3606c-69a7-43ae-b085-96fbdda8d6ee",
+      "name": "Send a text message1",
+      "webhookId": "8ba48d30-1327-424f-ad70-ede8a3857a09",
+      "credentials": {
+        "telegramApi": {
+          "id": "S4IdyO1XdonSvwRX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('HTTP Request').first().json.result.at(-1).message.chat.id }}",
+        "text": "wisdom is in rest. try again later.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        160
+      ],
+      "id": "acb07751-5bf1-4ba0-bb43-7379984e3a30",
+      "name": "Send a text message2",
+      "webhookId": "a580e1d2-66ba-4f5d-98e5-4743044432f6",
+      "credentials": {
+        "telegramApi": {
+          "id": "S4IdyO1XdonSvwRX",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "new message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "new message": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "none"
+  },
+  "versionId": "3a81de62-900d-4d05-8634-8ea58bb26a0c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "320e2468de371e0a6451a9f08f546c5af3ded191c46cd7d1e0f2ebdc62b2eb76"
+  },
+  "nodeGroups": [],
+  "id": "mIbqNk9AWollYY6a",
+  "tags": []
+}

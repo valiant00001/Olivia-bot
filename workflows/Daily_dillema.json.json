@@ -1,0 +1,149 @@
+{
+  "name": "Olivia",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5ba80e2b-805e-4282-b3a6-d36caee64fa5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "chatId": "Your_Chat_Id",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "14720211-7f95-45ab-bed3-4d5bef7cb910",
+      "name": "Send a text message",
+      "webhookId": "a61ec139-518f-4c27-a640-0546193f1175",
+      "credentials": {
+        "telegramApi": {
+          "id": "S4IdyO1XdonSvwRX",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 15,
+              "triggerAtMinute": 50
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        16,
+        176
+      ],
+      "id": "05f192c1-56f8-4612-b7c7-8cfd5476848a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-flash-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a philosophical provocateur. Today's thinker: {{ ['Nietzsche','Camus','Voltaire','Socrates','Sartre','Kierkegaard','Simone de Beauvoir','Schopenhauer','Marcus Aurelius','Hannah Arendt','Epictetus','Hume'][Math.floor(Math.random()*12)] }}. Today's theme: {{ ['freedom vs security','truth vs comfort','justice vs loyalty','meaning vs honesty','authenticity vs belonging','mortality','self-deception','ambition vs contentment','duty vs desire','forgiveness'][Math.floor(Math.random()*10)] }}.\n\nWrite ONE original dilemma addressed to the reader (\"you\").\n\nRules:\n- Open with a concrete, specific situation with real stakes. No lecture, no preamble.\n- Both choices must be defensible. Each should threaten a different comfortable belief the reader holds.\n- Ground it in the thinker's actual idea, but don't summarize their philosophy.\n- Never use textbook examples: no trolley problem, organ transplant, Ship of Theseus, experience machine, or lifeboat.\n- Never give an answer, moralize, or say there's no right answer.\n- 90 to 120 words. Plain text only: no markdown, no emojis, no bullet points.\n- Second-to-last line: one forced-choice question.\n- Last line, after a blank line: \"Thinker: <name> | Bias tested: <the specific cognitive bias>\""
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        144
+      ],
+      "id": "1766ce4c-cb02-404a-b818-6aaa5b7e8d9a",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "waitBetweenTries": 500,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KsU0eoI1d5E4m2qR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "d1f0812a-9dc0-4034-a3db-50e8e655943c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "320e2468de371e0a6451a9f08f546c5af3ded191c46cd7d1e0f2ebdc62b2eb76"
+  },
+  "nodeGroups": [],
+  "id": "uzngVXTXfMlBzHqx",
+  "tags": []
+}
